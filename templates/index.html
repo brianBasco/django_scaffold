@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Application{% endblock %}</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://unpkg.com/htmx.org@1.9.9"></script>
+
+    {% load static %}
+
+</head>
+
+<body>
+
+    <div id="modal-errors"></div>
+
+    <main class="container mt-4">
+        <p>Hello, world. You're at the polls index.</p>
+        {% block content %}{% endblock %}
+    </main>
+
+    <div class="container mt-4">
+        <p>Générer une erreur avec HTMX :</p>
+        <button hx-get="/404">tester</button>
+
+        <button class="btn btn-danger" hx-get="{% url 'test_perm' %}" hx-target="#modal-body" hx-swap="innerHTML">
+            Tester erreur perm
+        </button>
+
+        <button class="btn btn-danger" hx-get="{% url 'test_error_404' %}" hx-target="#modal-body" hx-swap="innerHTML">
+            Tester erreur 404
+        </button>
+
+
+
+        <div id="modal-body">modal body</div>
+    </div>
+
+
+    <!-- Toast Container -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 20000;">
+        <div id="htmxErrorToast" class="toast text-bg-danger border-0" role="alert" aria-live="assertive"
+            aria-atomic="true">
+            <div class="toast-header text-bg-danger border-0">
+                <strong class="me-auto">Erreur</strong>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body" id="htmxErrorToastBody">
+                <!-- Le message d’erreur sera injecté ici -->
+            </div>
+        </div>
+    </div>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        document.body.addEventListener("htmx:responseError", function (event) {
+            //showHtmxToast(event.detail.error || "Erreur inconnue du serveur");
+            showHtmxToast(event.detail.xhr.responseText || "Erreur inconnue du serveur");
+        });
+
+        document.body.addEventListener("htmx:error", function (event) {
+            showHtmxToast("Erreur réseau ou requête invalide");
+        });
+
+        function showHtmxToast(message) {
+            const toastEl = document.getElementById("htmxErrorToast");
+            const toastBody = document.getElementById("htmxErrorToastBody");
+
+            toastBody.textContent = message;
+
+            const toast = bootstrap.Toast.getOrCreateInstance(toastEl);
+            toast.show();
+        }
+    </script>
+
+
+
+</body>
+
+</html>
